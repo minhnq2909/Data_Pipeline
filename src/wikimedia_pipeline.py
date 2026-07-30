@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import sys
+import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Iterable
@@ -12,6 +13,7 @@ import psycopg2
 from psycopg2.extras import Json, execute_values
 import requests
 from requests.adapters import HTTPAdapter
+from requests.exceptions import RequestException
 from urllib3.util.retry import Retry
 
 
@@ -47,6 +49,12 @@ def require_env(name: str, default: str | None = None) -> str:
     return value
 
 
+def normalize_window(window_start: datetime, window_end: datetime) -> tuple[datetime, datetime]:
+    if window_start == window_end:
+        window_end = window_start + timedelta(days=1)
+    return window_start, window_end
+
+
 def build_session(user_agent: str) -> requests.Session:
     retry = Retry(
         total=5,
@@ -64,6 +72,40 @@ def build_session(user_agent: str) -> requests.Session:
     session.mount("https://", adapter)
     session.mount("http://", adapter)
     return session
+
+
+def get_json_with_retries(
+    session: requests.Session,
+    api_url: str,
+    params: dict[str, Any],
+    attempts: int = 5,
+) -> dict[str, Any]:
+    for attempt in range(1, attempts + 1):
+        try:
+            response = session.get(api_url, params=params, timeout=(10, 90))
+            response.raise_for_status()
+            return response.json()
+        except (RequestException, ValueError) as exc:
+            if attempt == attempts:
+                raise
+            sleep_seconds = min(2 ** (attempt - 1), 30)
+            print(
+                json.dumps(
+                    {
+                        "status": "retrying",
+                        "attempt": attempt,
+                        "sleep_seconds": sleep_seconds,
+                        "error_type": type(exc).__name__,
+                        "error": str(exc),
+                    },
+                    ensure_ascii=False,
+                ),
+                file=sys.stderr,
+                flush=True,
+            )
+            time.sleep(sleep_seconds)
+
+    raise RuntimeError("Unreachable retry state")
 
 
 def get_connection():
@@ -247,9 +289,7 @@ def extract_window(
 
     try:
         for page_number in range(1, max_pages + 1):
-            response = session.get(api_url, params=params, timeout=(10, 90))
-            response.raise_for_status()
-            payload = response.json()
+            payload = get_json_with_retries(session, api_url, params)
 
             if "error" in payload:
                 raise RuntimeError(
@@ -302,6 +342,7 @@ def extract_window(
 def main() -> int:
     window_start = parse_utc(require_env("WINDOW_START"))
     window_end = parse_utc(require_env("WINDOW_END"))
+    window_start, window_end = normalize_window(window_start, window_end)
 
     stats = extract_window(
         api_url=require_env(

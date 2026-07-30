@@ -45,7 +45,9 @@ with DAG(
     dbt_run = BashOperator(
         task_id="dbt_run",
         bash_command=(
-            "/opt/dbt-venv/bin/dbt run "
+            "/opt/dbt-venv/bin/dbt "
+            "--log-path /tmp/dbt-logs "
+            "run "
             "--project-dir /opt/airflow/dbt "
             "--profiles-dir /opt/airflow/dbt"
         ),
@@ -57,7 +59,9 @@ with DAG(
     dbt_test = BashOperator(
         task_id="dbt_test",
         bash_command=(
-            "/opt/dbt-venv/bin/dbt test "
+            "/opt/dbt-venv/bin/dbt "
+            "--log-path /tmp/dbt-logs "
+            "test "
             "--project-dir /opt/airflow/dbt "
             "--profiles-dir /opt/airflow/dbt"
         ),

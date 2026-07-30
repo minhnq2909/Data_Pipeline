@@ -76,8 +76,8 @@ services:
     command:
       - -c
       - |
-        mkdir -p /sources/dags /sources/logs /sources/plugins /sources/config
-        chown -R "${AIRFLOW_UID:-50000}:0" /sources/dags /sources/logs /sources/plugins /sources/config
+        mkdir -p /sources/dags /sources/logs /sources/plugins /sources/config /sources/dbt/logs /sources/dbt/target
+        chown -R "${AIRFLOW_UID:-50000}:0" /sources/dags /sources/logs /sources/plugins /sources/config /sources/dbt/logs /sources/dbt/target
         exec /entrypoint airflow version
     environment:
       <<: *airflow-common-env

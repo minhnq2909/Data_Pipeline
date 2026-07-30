@@ -24,10 +24,9 @@ models:
         data_tests:
           - not_null
           - accepted_values:
-              arguments:
-                values:
-                  - edit
-                  - new
-                  - log
-                  - categorize
-                  - external
+              values:
+                - edit
+                - new
+                - log
+                - categorize
+                - external
