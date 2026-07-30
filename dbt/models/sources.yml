@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: Append-only landing data from Wikimedia.
+    tables:
+      - name: wikimedia_recentchanges
+        description: Original RecentChanges payload plus technical metadata.
+        columns:
+          - name: _raw
+            data_tests:
+              - not_null
+          - name: _window_start
+            data_tests:
+              - not_null
+          - name: _window_end
+            data_tests:
+              - not_null

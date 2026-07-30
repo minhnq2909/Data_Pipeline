@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: agg_recentchanges_daily
+    description: >
+      Grain: one row per UTC activity_date and namespace_id.
+      This is the only model intended for the dashboard.
+    columns:
+      - name: activity_date
+        data_tests:
+          - not_null
+
+      - name: namespace_id
+        data_tests:
+          - not_null
+
+      - name: namespace_name
+        data_tests:
+          - not_null
+
+      - name: total_changes
+        data_tests:
+          - not_null

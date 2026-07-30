@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: stg_wikimedia_recentchanges
+    description: >
+      One row per Wikimedia recent-change event after deduplication and
+      type/UTC normalization. No joins, aggregation, or business filtering.
+    columns:
+      - name: change_id
+        description: Natural key from rcid.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: changed_at_utc
+        data_tests:
+          - not_null
+
+      - name: namespace_id
+        data_tests:
+          - not_null
+
+      - name: change_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - edit
+                  - new
+                  - log
+                  - categorize
+                  - external

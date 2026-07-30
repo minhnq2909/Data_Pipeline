@@ -1,0 +1,32 @@
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Airflow/runtime logs
+logs/*
+!logs/.gitkeep
+
+# dbt artifacts
+dbt/target/
+dbt/logs/
+dbt_packages/
+
+# Local tooling
+.deepeval/
+
+# OS/editor noise
+.DS_Store
+.idea/
+.vscode/
+*.swp
