@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data Pipeline Monitoring</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>Data Pipeline Monitoring</h1>
+        </div>
+        <button id="refreshButton" type="button">Refresh</button>
+      </header>
+
+      <section class="dashboard-frame" aria-label="Data Pipeline Monitoring dashboard">
+        <div id="loadingState" class="state">Loading dashboard...</div>
+        <div id="errorState" class="state state-error" hidden></div>
+        <iframe
+          id="dashboardFrame"
+          title="Data Pipeline Monitoring"
+          allowtransparency
+          hidden
+        ></iframe>
+      </section>
+    </main>
+
+    <script src="/main.js"></script>
+  </body>
+</html>

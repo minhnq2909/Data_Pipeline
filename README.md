@@ -89,6 +89,7 @@ Truy cập:
 
 - Airflow: `http://localhost:8080`
 - Metabase: `http://localhost:3000`
+- Website dashboard embed: `http://localhost:8000`
 - Warehouse từ máy host: `localhost:5433`
 
 Tài khoản Airflow mặc định nằm trong `.env`.
@@ -276,7 +277,53 @@ Chart đề xuất:
 4. `04_latest_day_kpis.sql` -> KPI cards.
 5. `05_change_types_daily.sql` -> Stacked bar.
 
-## 12. Các test hiện có
+## 12. Nhúng dashboard bằng Guest Embed
+
+Website trong thư mục `web/` hiển thị dashboard Metabase bằng luồng:
+
+```text
+Frontend -> POST /api/metabase/guest-token -> backend ký JWT -> Metabase embed iframe
+```
+
+Endpoint:
+
+```http
+POST /api/metabase/guest-token
+Content-Type: application/json
+
+{
+  "entityType": "dashboard",
+  "entityId": 2
+}
+```
+
+Backend trả về `iframeUrl` đã chứa JWT HS256, `params: {}` và thời hạn 10 phút. Frontend không giữ secret và không dùng public iframe.
+
+Thiết lập trong Metabase:
+
+1. Vào Admin settings -> Embedding.
+2. Bật Embedding.
+3. Regenerate embedding secret.
+4. Bật embedding cho dashboard `Data Pipeline Monitoring`.
+5. Đặt secret mới vào `.env`:
+
+```env
+METABASE_SITE_URL=http://localhost:3000
+METABASE_DASHBOARD_ID=2
+METABASE_EMBEDDING_SECRET=<new-regenerated-secret>
+```
+
+Không dùng lại secret từng xuất hiện trong ảnh hoặc trao đổi trước đó.
+
+Sau đó chạy:
+
+```bash
+docker compose up -d --build web
+```
+
+Mở `http://localhost:8000`.
+
+## 13. Các test hiện có
 
 Built-in:
 
@@ -298,7 +345,7 @@ Custom singular tests:
 
 dbt singular test pass khi query trả về 0 dòng.
 
-## 13. Tại sao project chạy lại không sai?
+## 14. Tại sao project chạy lại không sai?
 
 - Airflow truyền `data_interval_start` và `data_interval_end`.
 - Extract chỉ giữ event trong `[start, end)`.
@@ -309,7 +356,7 @@ dbt singular test pass khi query trả về 0 dòng.
 - Dashboard chỉ đọc mart.
 - Backfill tạo một DAG run cho mỗi interval ngày.
 
-## 14. Reset hoàn toàn
+## 15. Reset hoàn toàn
 
 ```bash
 docker compose down --volumes --remove-orphans

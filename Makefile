@@ -1,4 +1,4 @@
-.PHONY: init up down reset status logs dbt-debug dbt-run dbt-test airflow-info psql
+.PHONY: init up down reset status logs web-logs dbt-debug dbt-run dbt-test airflow-info psql
 
 DBT_CMD=/opt/dbt-venv/bin/dbt --project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt
 
@@ -21,6 +21,9 @@ status:
 
 logs:
 	docker compose logs -f airflow-scheduler airflow-dag-processor airflow-api-server
+
+web-logs:
+	docker compose logs -f web
 
 airflow-info:
 	docker compose run --rm airflow-cli airflow info
